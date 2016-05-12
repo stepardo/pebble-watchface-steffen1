@@ -1,3 +1,11 @@
+/**
+ * Pebble Watchface Steffen1
+ *
+ * (C) 2016 Steffen Liebergeld <usenet@gmx.eu>
+ *
+ * This program is licensed under Gnu General Public License, version 2. See
+ * LICENSE for details. I do not permit military use.
+ */
 #include <pebble.h>
 
 #define PHONE_CMD_BATTERY_LEVEL 0
