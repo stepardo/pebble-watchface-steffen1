@@ -1,0 +1,32 @@
+{
+  "uuid": "d17a33f6-e2ed-41d5-b506-db1f6c15bb68",
+  "shortName": "steffen1",
+  "longName": "steffen1",
+  "companyName": "Cybervisor",
+  "versionLabel": "0.1",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite"],
+  "enableMultiJS": true,
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "font",
+        "name": "TERMINUS_24",
+        "file": "fonts/TerminusTTF-4.39.ttf",
+        "compatibility": "2.7"
+      },
+      {
+        "type": "font",
+        "name": "TERMINUS_12",
+        "file": "fonts/TerminusTTF-4.39.ttf",
+        "compatibility": "2.7"
+      }
+    ]
+  }
+}
