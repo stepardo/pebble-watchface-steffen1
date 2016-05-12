@@ -1,7 +1,7 @@
 #include <pebble.h>
 
-#define KEY_BUTTON_UP   0
-#define KEY_BUTTON_DOWN 1
+#define PHONE_CMD_BATTERY_LEVEL 0
+#define PHONE_RET_BATTERY_LEVEL 1
 
 static Window    *s_main_window;
 static TextLayer *s_time_layer;
@@ -11,6 +11,18 @@ static TextLayer *s_status_layer;
 static GFont      s_font_terminus_24;
 static GFont      s_font_terminus_12;
 static int        s_battery_level;
+static int        s_phone_battery_level;
+static bool       s_bluetooth_connected;
+
+static void update_status()
+{
+  static char buf[80];
+  snprintf(buf, sizeof(buf), "bluetooth: %s\nphone battery: %d%%\nwatch battery: %d%%",
+    s_bluetooth_connected ? "connected" : "disconnected",
+    s_phone_battery_level,
+    s_battery_level);
+  text_layer_set_text(s_status_layer, buf);
+} 
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 {
@@ -18,7 +30,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 
   static char s_buffer[8], date_buffer[14];
   strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ?
-                                          "%H:%M" : "%I:%M", tick_time);
+                                       "%H:%M" : "%I:%M", tick_time);
 
   text_layer_set_text(s_time_layer, s_buffer);
 
@@ -28,12 +40,11 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 }
 
 static void bluetooth_callback(bool connected) {
-  static char buf[60];
-  snprintf(buf, sizeof(buf), "%s\nbattery: %d%%", connected ? "connected" : "disconnected", s_battery_level);
   if(!connected) {
     vibes_double_pulse();
   }
-  text_layer_set_text(s_status_layer, buf);
+  s_bluetooth_connected = connected;
+  update_status();
 }
 
 static void battery_callback(BatteryChargeState state) {
@@ -97,7 +108,9 @@ static void main_window_load(Window *window)
 static void main_window_unload(Window *window)
 {
   text_layer_destroy(s_time_layer);
+  text_layer_destroy(s_date_layer);
   text_layer_destroy(s_output_layer);
+  text_layer_destroy(s_status_layer);
 }
 
 static void send(int key, int value) {
@@ -111,12 +124,11 @@ static void send(int key, int value) {
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(s_output_layer, "Up");
-  send(KEY_BUTTON_UP, 0);
+  send(PHONE_CMD_BATTERY_LEVEL, 0);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
   text_layer_set_text(s_output_layer, "Down");
-  send(KEY_BUTTON_DOWN, 0);
 }
 
 static void click_config_provider(void *context) {
@@ -133,9 +145,18 @@ static void outbox_failed_handler(DictionaryIterator *iter, AppMessageResult rea
   APP_LOG(APP_LOG_LEVEL_ERROR, "Fail reason: %d", (int)reason);
 }
 
+static void received_handler(DictionaryIterator *iter, void *context) {
+  Tuple *result_tuple = dict_find(iter, PHONE_RET_BATTERY_LEVEL);
+  if(result_tuple) {
+    s_phone_battery_level = result_tuple->value->int32;
+    update_status();
+  }
+}
+
 static void init()
 {
   s_main_window = window_create();
+  s_phone_battery_level = 0;
 
   window_set_window_handlers(s_main_window, (WindowHandlers)
       {
@@ -150,6 +171,7 @@ static void init()
 
   app_message_register_outbox_sent(outbox_sent_handler);
   app_message_register_outbox_failed(outbox_failed_handler);
+  app_message_register_inbox_received(received_handler);
 
   const int inbox_size = 128;
   const int outbox_size = 128;
