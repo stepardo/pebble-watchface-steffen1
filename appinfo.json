@@ -8,10 +8,15 @@
   "targetPlatforms": ["aplite"],
   "enableMultiJS": true,
   "watchapp": {
-    "watchface": false
+    "watchface": true
   },
   "appKeys": {
-    "dummy": 0
+    "WEATHER_TEMP": 5,
+    "WEATHER_COND": 6,
+    "WEATHER_RAIN": 7,
+    "WEATHER_TEMP_TOM": 8,
+    "WEATHER_COND_TOM": 9,
+    "WEATHER_RAIN_TOM": 10
   },
   "resources": {
     "media": [
