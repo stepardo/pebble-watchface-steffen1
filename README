@@ -1,8 +1,9 @@
-Pebble Watchface Steffen1
+Watchface Steffen1
 
 This program is my personal playground for pebble programming. It uses the
 terminus font from http://files.ax86.net/terminus-ttf/.
 
 Currently it shows the date, time, bluetooth connection state, watch battery
 level and -if the corresponding android app is installed- the battery level of
-the smartphone.
+the smartphone. It also show weather information for today and tomorrow. ATM
+this is text only.
